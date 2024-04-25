@@ -1,7 +1,9 @@
-import Features from "@/components/Features";
-import Hero from "@/components/Hero";
-import Contact from "@/components/Contact";
-export default function Home() {
+import Features from ".././components/Features";
+import Hero from ".././components/Hero";
+import Contact from ".././components/Contact";
+
+
+const Home = () => {
   return (
     <main>
     <Hero/>
@@ -10,3 +12,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default Home
