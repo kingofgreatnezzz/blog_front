@@ -7,13 +7,15 @@ import { useRouter } from 'next/navigation'
 
 export default function page() {
 
-  const [formData, setFormData] = useState({'email': '', 'password': ''})
+  const [formData, setFormData] = useState({'email': ''})
   const [resetSend, setresetSend] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [resetError, setresetError ]= useState('')
+  const [resetError, setresetError] = useState('')
   const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
 
 
+0
   const handleChange = (event) => {
     setFormData({...formData, [event.target.name]: event.target.value})
   }
@@ -33,71 +35,86 @@ export default function page() {
       const body = JSON.stringify({email});
 
       setLoading(true)
-
       axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/users/reset_password/`, body, config) 
       .then(res => {
         setresetSend(true)
         setLoading(false)
-        setMessage("Email sent successfully!")
+        setError('')
+        setresetError('')
       })
       .catch(error => {
         if(error.response && error.response.data){
             setresetError(error.response)
             setLoading(false)
+            setError('')
         }
+        if(!error.response){
+         setError("Error: Couldn't connect to the server. Please check your internet connection")
+        } 
+        setLoading(false)
       })
-  
   }catch(error){
-    setLoading(false)
     setMessage("Sorry, something went wrong")
-  }
-  }
+    setLoading(false)
+  }}
+  useEffect(() => {
+    let timer;
+    if(resetSend){
+      setMessage("Reset email sent successfully")
+      timer = setTimeout(() => {
+        setMessage("")
+        router.push('/')
+      }, 5000)
+    }
+    return () => {
+      //clear
+      clearTimeout(timer);
+    }
+  },[resetSend])
 
-  // useEffect(() => {
-  //   if(message.length > 100){
-  //     router.push('/')
-  //   }
-  // },[token])
 
-  console.log(resetError.data?.[0])
+  // console.log(resetError.data?.[0])
   return (
     
     <div className="h-screen bg-gray-800 ">
-      <div class="w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800">
-        <div class="px-6 py-4">
-          <div class="flex justify-center mx-auto">
+      <div className="w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800">
+        <div className="px-6 py-4">
+          <div className="flex justify-center mx-auto">
             <Image
               width={500}
               height={500}
-              class="w-auto h-7 sm:h-8"
+              className="w-auto h-7 sm:h-8"
               src={"https://merakiui.com/images/logo.svg"}
               alt=""
             />
           </div>
-
-          <h3 class="mt-3 text-xl font-medium text-center text-gray-600 dark:text-gray-200">
+            {
+                error != '' ? <p style={{color: 'red', fontSize: '.650rem', padding:'.2rem', fontWeight:'500', lineHeight:'.7rem'}}>{error}</p> : ''
+            }
+          <h3 className="mt-3 text-xl font-medium text-center text-gray-600 dark:text-gray-200">
             Forgot Password
           </h3>
             
-          <p class="mt-1 text-center text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-center text-gray-500 dark:text-gray-400">
             Enter your account's email
           </p>
-          <p style={{fontSize: '.7rem', color:'#dc93a0'}} class="mt-1 text-center text-gray-500 dark:text-gray-400">
+          <p style={{fontSize: '.7rem', color:'#dc93a0'}} className="mt-1 text-center text-gray-500 dark:text-gray-400">
             You will recieve an email with link to reset your password
           </p>
 
-          <form onClick={handleSubmit}>
+          <form onSubmit={handleSubmit}>
           {
-              resetError.data ? <b style={{color: 'red', fontSize: '.650rem', fontWeight:'500'}}>{resetError.data?.[0]}</b> : ''
+            resetError?.data ? <b style={{color: 'red', fontSize: '.650rem', fontWeight:'500'}}>{resetError?.data?.[0]}</b> : ''
           }
 
         {
-              message.data ? <b style={{color: 'red', fontSize: '.650rem', fontWeight:'500'}}>Sent Successfully!</b> : ''
+              message != '' ? <b style={{color: `${resetSend ? 'green': 'red'}`, fontSize: '.650rem', fontWeight:'500'}}>{message}</b> : ''
           }
+       
 
-            <div class="w-full mt-4">
+            <div className="w-full mt-4">
               <input
-                class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-500 bg-white border rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring focus:ring-blue-300"
+                className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-500 bg-white border rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring focus:ring-blue-300"
                 type="email"
                 placeholder="Enter your valid email Address"
                 aria-label="Email Address"
@@ -109,9 +126,9 @@ export default function page() {
             </div>
 
 
-            <div class="flex items-center justify-between mt-4">
-              <button type='submit' disabled={loading ? true : false} class="px-6 w-full p-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
-                {loading ? 'Reseting...' : 'Submit' }
+            <div className="flex items-center justify-between mt-4">
+              <button type='submit' disabled={loading || resetSend ? true : false} className="px-6 w-full p-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
+                {loading ? 'Sending...' : 'Send' }
               </button>
             </div>
           </form>

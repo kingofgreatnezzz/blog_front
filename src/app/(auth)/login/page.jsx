@@ -42,6 +42,7 @@ export default function page() {
         setToken(res.data.access)
         localStorage.setItem('token', res.data.access)
         localStorage.setItem('refresh', res.data.refresh)
+        setLoginError('')
       })
       .catch(error => {
         setLoginError(error.response)
@@ -112,7 +113,7 @@ export default function page() {
 
             <div className="flex items-center justify-between mt-4">
               <Link
-                href={"/forgotpassword"}
+                href={"/forgottenpassword"}
                 className="text-sm text-gray-600 dark:text-gray-200 hover:text-gray-500"
               >
                 Forget Password?
